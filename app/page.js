@@ -7,16 +7,13 @@ export default function BirthdayInvitation() {
   const [stage, setStage] = useState('intro');
   const videoRef = useRef(null);
 
-  // --- LÓGICA DE REPRODUCCIÓN ---
+  // Forzar reproducción del video
   useEffect(() => {
     if (stage === 'video' && videoRef.current) {
-      // Intentamos reproducir
       const playPromise = videoRef.current.play();
-      
       if (playPromise !== undefined) {
         playPromise.catch((error) => {
           console.error("Error al reproducir:", error);
-          // Si falla, es probable que el navegador pida interacción directa
         });
       }
     }
@@ -44,19 +41,21 @@ export default function BirthdayInvitation() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.5, rotate: -5 }}
-            className="text-center z-10 px-6 flex flex-col items-center"
+            className="text-center z-10 px-6 flex flex-col items-center w-full"
           >
-            <h1 className="font-bangers text-6xl md:text-8xl mb-4 tracking-wider text-white drop-shadow-[4px_4px_0px_rgba(250,204,21,1)]">
+            {/* --- CORRECCIÓN AQUÍ: Tamaños de fuente ajustados para móvil --- */}
+            {/* text-4xl para móvil, sm:text-6xl para tablets, md:text-8xl para PC */}
+            <h1 className="font-bangers text-4xl sm:text-6xl md:text-8xl mb-4 tracking-wider text-white drop-shadow-[3px_3px_0px_rgba(250,204,21,1)] md:drop-shadow-[4px_4px_0px_rgba(250,204,21,1)]">
               MI <span className="text-yellow-400 drop-shadow-none">CUMPLEAÑOS</span>
             </h1>
             
-            <p className="font-inter text-gray-400 mb-10 text-lg uppercase tracking-widest font-bold">
-              INVITACIÓN ESPECIAL
+            <p className="font-inter text-gray-400 mb-10 text-base md:text-lg uppercase tracking-widest font-bold">
+              Experiencia d8 Creative
             </p>
             
             <button
               onClick={startExperience}
-              className="group relative px-10 py-4 bg-yellow-400 text-black font-bangers text-2xl tracking-wide uppercase transform hover:scale-105 transition-all duration-200 border-4 border-transparent hover:border-white shadow-[0_0_20px_rgba(250,204,21,0.5)]"
+              className="group relative px-8 py-3 md:px-10 md:py-4 bg-yellow-400 text-black font-bangers text-xl md:text-2xl tracking-wide uppercase transform hover:scale-105 transition-all duration-200 border-4 border-transparent hover:border-white shadow-[0_0_20px_rgba(250,204,21,0.5)]"
               style={{ clipPath: 'polygon(10% 0, 100% 0, 100% 80%, 90% 100%, 0 100%, 0 20%)' }}
             >
               ABRIR INVITACIÓN
@@ -77,14 +76,11 @@ export default function BirthdayInvitation() {
               ref={videoRef}
               className="w-full h-full object-cover opacity-100"
               playsInline
-              // IMPORTANTE: muted={false} intenta reproducir sonido. 
-              // Si en el celular no arranca, cambia esto a muted={true}
               muted={false} 
               onEnded={handleVideoEnd}
             >
-              {/* --- AQUÍ ESTABA EL ERROR: Ahora dice Video con V mayúscula --- */}
+              {/* Mantenemos la V mayúscula que te funcionó */}
               <source src="/Video-auto.mp4" type="video/mp4" />
-              Tu navegador no soporta videos.
             </video>
             
             <button 
@@ -120,13 +116,13 @@ export default function BirthdayInvitation() {
           initial={{ opacity: 0, y: 100, rotate: 5 }}
           animate={{ opacity: 1, y: 0, rotate: 0 }}
           transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-          className="relative z-30 w-full max-w-sm mx-auto mt-20"
+          className="relative z-30 w-full max-w-sm mx-auto mt-20 px-4" // Agregué px-4 para margen en móviles
         >
           <motion.div 
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="absolute -top-40 left-1/2 transform -translate-x-1/2 z-40 w-48 md:w-56"
+            className="absolute -top-32 md:-top-40 left-1/2 transform -translate-x-1/2 z-40 w-40 md:w-56"
           >
              <Image 
                 src="/avatard8.png" 
@@ -137,36 +133,36 @@ export default function BirthdayInvitation() {
              />
           </motion.div>
 
-          <div className="bg-[#1a1a1a] border-2 border-yellow-400 relative pt-16 pb-8 px-6 shadow-[10px_10px_0px_rgba(250,204,21,1)] text-center">
+          <div className="bg-[#1a1a1a] border-2 border-yellow-400 relative pt-16 pb-8 px-4 md:px-6 shadow-[10px_10px_0px_rgba(250,204,21,1)] text-center">
             
             <div className="absolute top-0 left-0 w-full h-2 bg-yellow-400 bg-[repeating-linear-gradient(45deg,black,black_10px,transparent_10px,transparent_20px)] opacity-50"></div>
 
             <div className="mt-4">
               <h2 className="font-bangers text-5xl text-white mb-0 drop-shadow-md">DAVID</h2>
               <div className="inline-block bg-yellow-400 text-black font-bold px-2 py-0.5 text-xs transform -rotate-2 font-inter tracking-widest mb-6">
-                D8 CREATIVE FOUNDER
+                D8 CREATIVE
               </div>
 
               <div className="relative bg-white text-black p-5 rounded-lg shadow-lg mb-6 border-2 border-black transform rotate-1">
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-white border-t-2 border-l-2 border-black rotate-45"></div>
                 
                 <p className="font-bangers text-2xl leading-none mb-2">
-                  ¡Hey, hoy es mi día!
+                  ¡SE VIENE Mi CUMPLE!
                 </p>
                 <p className="font-inter text-sm font-medium leading-tight text-gray-800">
-                  Te espero para festejar conmigo en casa. <br/>Traer bebida y ganas de pasarla bien. 🥃
+                  Los espero para festejar mi cumple. <br/>Traer bebida y ganas de pasarla bien. 🥃
                 </p>
               </div>
 
               <div className="border-t-2 border-dashed border-gray-600 pt-4 space-y-3">
                 <div className="flex flex-col items-center">
-                  <span className="font-bangers text-4xl text-yellow-400 tracking-wider">3 DE ENERO</span>
-                  <span className="font-inter font-bold text-white text-xl bg-black px-2 -mt-2 relative z-10">19:00 HS</span>
+                  <span className="font-bangers text-3xl md:text-4xl text-yellow-400 tracking-wider">3 DE ENERO</span>
+                  <span className="font-inter font-bold text-white text-lg md:text-xl bg-black px-2 -mt-2 relative z-10">19:00 HS</span>
                 </div>
                 
                 <div className="flex items-center justify-center gap-2 text-gray-300 mt-4">
                   <span className="text-2xl">📍</span>
-                  <span className="font-inter font-bold text-lg text-white border-b-2 border-yellow-400">LIBERTAD 403</span>
+                  <span className="font-inter font-bold text-base md:text-lg text-white border-b-2 border-yellow-400">LIBERTAD 403</span>
                 </div>
               </div>
 
