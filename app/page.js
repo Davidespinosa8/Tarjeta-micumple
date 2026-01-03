@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react'; // <-- Agregamos useEffect
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
@@ -7,22 +7,20 @@ export default function BirthdayInvitation() {
   const [stage, setStage] = useState('intro');
   const videoRef = useRef(null);
 
-  // --- NUEVO: Forzar reproducción apenas cambia el estado a 'video' ---
+  // --- LÓGICA DE REPRODUCCIÓN ---
   useEffect(() => {
     if (stage === 'video' && videoRef.current) {
       // Intentamos reproducir
       const playPromise = videoRef.current.play();
       
-      // Manejo de errores de reproducción (por si el navegador bloquea)
       if (playPromise !== undefined) {
         playPromise.catch((error) => {
-          console.log("Autoplay bloqueado por el navegador:", error);
-          // Si falla, podrías mostrar un botón de play manual, 
-          // pero al haber interacción previa debería funcionar.
+          console.error("Error al reproducir:", error);
+          // Si falla, es probable que el navegador pida interacción directa
         });
       }
     }
-  }, [stage]); // Se ejecuta cuando 'stage' cambia
+  }, [stage]);
 
   const startExperience = () => {
     setStage('video');
@@ -48,7 +46,6 @@ export default function BirthdayInvitation() {
             exit={{ opacity: 0, scale: 1.5, rotate: -5 }}
             className="text-center z-10 px-6 flex flex-col items-center"
           >
-            {/* Título ARREGLADO: Quitamos 'text-transparent' y 'bg-clip-text' */}
             <h1 className="font-bangers text-6xl md:text-8xl mb-4 tracking-wider text-white drop-shadow-[4px_4px_0px_rgba(250,204,21,1)]">
               MI <span className="text-yellow-400 drop-shadow-none">CUMPLEAÑOS</span>
             </h1>
@@ -80,11 +77,13 @@ export default function BirthdayInvitation() {
               ref={videoRef}
               className="w-full h-full object-cover opacity-100"
               playsInline
-              // Quitamos autoPlay de aquí porque lo manejamos con useEffect
+              // IMPORTANTE: muted={false} intenta reproducir sonido. 
+              // Si en el celular no arranca, cambia esto a muted={true}
               muted={false} 
               onEnded={handleVideoEnd}
             >
-              <source src="/video-auto.mp4" type="video/mp4" />
+              {/* --- AQUÍ ESTABA EL ERROR: Ahora dice Video con V mayúscula --- */}
+              <source src="/Video-auto.mp4" type="video/mp4" />
               Tu navegador no soporta videos.
             </video>
             
