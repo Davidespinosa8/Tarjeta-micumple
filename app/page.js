@@ -1,11 +1,28 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react'; // <-- Agregamos useEffect
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
 export default function BirthdayInvitation() {
   const [stage, setStage] = useState('intro');
   const videoRef = useRef(null);
+
+  // --- NUEVO: Forzar reproducción apenas cambia el estado a 'video' ---
+  useEffect(() => {
+    if (stage === 'video' && videoRef.current) {
+      // Intentamos reproducir
+      const playPromise = videoRef.current.play();
+      
+      // Manejo de errores de reproducción (por si el navegador bloquea)
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.log("Autoplay bloqueado por el navegador:", error);
+          // Si falla, podrías mostrar un botón de play manual, 
+          // pero al haber interacción previa debería funcionar.
+        });
+      }
+    }
+  }, [stage]); // Se ejecuta cuando 'stage' cambia
 
   const startExperience = () => {
     setStage('video');
@@ -19,8 +36,7 @@ export default function BirthdayInvitation() {
   };
 
   return (
-    // Fondo NEGRO puro para resaltar el amarillo
-    <div className="min-h-screen bg-black text-white overflow-hidden relative flex items-center justify-center">
+    <div className="min-h-screen bg-black text-white overflow-hidden relative flex items-center justify-center font-sans">
       
       <AnimatePresence mode="wait">
         {/* --- ETAPA 1: INTRODUCCIÓN --- */}
@@ -32,20 +48,19 @@ export default function BirthdayInvitation() {
             exit={{ opacity: 0, scale: 1.5, rotate: -5 }}
             className="text-center z-10 px-6 flex flex-col items-center"
           >
-            {/* Título estilo Logo D-8 */}
+            {/* Título ARREGLADO: Quitamos 'text-transparent' y 'bg-clip-text' */}
             <h1 className="font-bangers text-6xl md:text-8xl mb-4 tracking-wider text-white drop-shadow-[4px_4px_0px_rgba(250,204,21,1)]">
-              MI <span className="text-yellow-400 text-transparent bg-clip-text drop-shadow-none">CUMPLEAÑOS</span>
+              MI <span className="text-yellow-400 drop-shadow-none">CUMPLEAÑOS</span>
             </h1>
             
             <p className="font-inter text-gray-400 mb-10 text-lg uppercase tracking-widest font-bold">
               INVITACIÓN ESPECIAL
             </p>
             
-            {/* Botón Amarillo y Negro */}
             <button
               onClick={startExperience}
               className="group relative px-10 py-4 bg-yellow-400 text-black font-bangers text-2xl tracking-wide uppercase transform hover:scale-105 transition-all duration-200 border-4 border-transparent hover:border-white shadow-[0_0_20px_rgba(250,204,21,0.5)]"
-              style={{ clipPath: 'polygon(10% 0, 100% 0, 100% 80%, 90% 100%, 0 100%, 0 20%)' }} // Recorte estilo "tech/urbano"
+              style={{ clipPath: 'polygon(10% 0, 100% 0, 100% 80%, 90% 100%, 0 100%, 0 20%)' }}
             >
               ABRIR INVITACIÓN
             </button>
@@ -65,11 +80,12 @@ export default function BirthdayInvitation() {
               ref={videoRef}
               className="w-full h-full object-cover opacity-100"
               playsInline
-              autoPlay 
-              muted={false}
+              // Quitamos autoPlay de aquí porque lo manejamos con useEffect
+              muted={false} 
               onEnded={handleVideoEnd}
             >
               <source src="/video-auto.mp4" type="video/mp4" />
+              Tu navegador no soporta videos.
             </video>
             
             <button 
@@ -105,16 +121,14 @@ export default function BirthdayInvitation() {
           initial={{ opacity: 0, y: 100, rotate: 5 }}
           animate={{ opacity: 1, y: 0, rotate: 0 }}
           transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-          className="relative z-30 w-full max-w-sm mx-auto mt-20" // Margen superior para el personaje
+          className="relative z-30 w-full max-w-sm mx-auto mt-20"
         >
-          {/* El personaje parado ARRIBA de la tarjeta */}
           <motion.div 
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
             className="absolute -top-40 left-1/2 transform -translate-x-1/2 z-40 w-48 md:w-56"
           >
-             {/* IMAGEN SIN CÍRCULO, solo el personaje recortado */}
              <Image 
                 src="/avatard8.png" 
                 alt="David d8" 
@@ -124,10 +138,8 @@ export default function BirthdayInvitation() {
              />
           </motion.div>
 
-          {/* Tarjeta Estilo Urbana/Industrial */}
           <div className="bg-[#1a1a1a] border-2 border-yellow-400 relative pt-16 pb-8 px-6 shadow-[10px_10px_0px_rgba(250,204,21,1)] text-center">
             
-            {/* Elementos decorativos estilo "Construction" */}
             <div className="absolute top-0 left-0 w-full h-2 bg-yellow-400 bg-[repeating-linear-gradient(45deg,black,black_10px,transparent_10px,transparent_20px)] opacity-50"></div>
 
             <div className="mt-4">
@@ -136,9 +148,7 @@ export default function BirthdayInvitation() {
                 D8 CREATIVE FOUNDER
               </div>
 
-              {/* Globo de diálogo - Estilo Cómic */}
               <div className="relative bg-white text-black p-5 rounded-lg shadow-lg mb-6 border-2 border-black transform rotate-1">
-                {/* Triángulo del globo apuntando arriba al personaje */}
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-white border-t-2 border-l-2 border-black rotate-45"></div>
                 
                 <p className="font-bangers text-2xl leading-none mb-2">
@@ -149,7 +159,6 @@ export default function BirthdayInvitation() {
                 </p>
               </div>
 
-              {/* Info de Fecha y Lugar */}
               <div className="border-t-2 border-dashed border-gray-600 pt-4 space-y-3">
                 <div className="flex flex-col items-center">
                   <span className="font-bangers text-4xl text-yellow-400 tracking-wider">3 DE ENERO</span>
