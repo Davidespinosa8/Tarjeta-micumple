@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
@@ -7,20 +7,20 @@ export default function BirthdayInvitation() {
   const [stage, setStage] = useState('intro');
   const videoRef = useRef(null);
 
-  // Forzar reproducción del video
-  useEffect(() => {
-    if (stage === 'video' && videoRef.current) {
-      const playPromise = videoRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.error("Error al reproducir:", error);
-        });
-      }
-    }
-  }, [stage]);
-
   const startExperience = () => {
-    setStage('video');
+    // TRUCO MAGICO: Le damos Play DIRECTAMENTE al hacer clic
+    if (videoRef.current) {
+      videoRef.current.play().then(() => {
+        // Si el video arranca, pasamos a la siguiente etapa
+        setStage('video');
+      }).catch((error) => {
+        console.error("Error al reproducir:", error);
+        // Si falla (ej: modo ahorro de bateria), pasamos igual
+        setStage('video');
+      });
+    } else {
+      setStage('video');
+    }
   };
 
   const handleVideoEnd = () => {
@@ -33,6 +33,31 @@ export default function BirthdayInvitation() {
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden relative flex items-center justify-center font-sans">
       
+      {/* --- EL VIDEO (Siempre presente, controlado por opacidad) --- */}
+      {/* Esto soluciona el problema de carga en móviles */}
+      <div className={`absolute inset-0 z-0 bg-black flex items-center justify-center transition-opacity duration-1000 ${stage === 'intro' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <video
+          ref={videoRef}
+          className="w-full h-full object-cover"
+          playsInline
+          preload="auto" // Importante para que cargue antes
+          muted={false} 
+          onEnded={handleVideoEnd}
+        >
+          <source src="/Video-auto.mp4" type="video/mp4" />
+        </video>
+
+        {/* Botón Saltar (Solo visible en etapa video) */}
+        {stage === 'video' && (
+          <button 
+            onClick={handleVideoEnd}
+            className="absolute bottom-10 right-10 font-bangers text-xl text-yellow-400 bg-black/80 px-4 py-2 border-2 border-yellow-400 hover:bg-yellow-400 hover:text-black transition-colors z-50 uppercase tracking-widest"
+          >
+            Saltar
+          </button>
+        )}
+      </div>
+
       <AnimatePresence mode="wait">
         {/* --- ETAPA 1: INTRODUCCIÓN --- */}
         {stage === 'intro' && (
@@ -41,10 +66,8 @@ export default function BirthdayInvitation() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.5, rotate: -5 }}
-            className="text-center z-10 px-6 flex flex-col items-center w-full"
+            className="text-center z-10 px-6 flex flex-col items-center w-full relative"
           >
-            {/* --- CORRECCIÓN AQUÍ: Tamaños de fuente ajustados para móvil --- */}
-            {/* text-4xl para móvil, sm:text-6xl para tablets, md:text-8xl para PC */}
             <h1 className="font-bangers text-4xl sm:text-6xl md:text-8xl mb-4 tracking-wider text-white drop-shadow-[3px_3px_0px_rgba(250,204,21,1)] md:drop-shadow-[4px_4px_0px_rgba(250,204,21,1)]">
               MI <span className="text-yellow-400 drop-shadow-none">CUMPLEAÑOS</span>
             </h1>
@@ -59,35 +82,6 @@ export default function BirthdayInvitation() {
               style={{ clipPath: 'polygon(10% 0, 100% 0, 100% 80%, 90% 100%, 0 100%, 0 20%)' }}
             >
               ABRIR INVITACIÓN
-            </button>
-          </motion.div>
-        )}
-
-        {/* --- ETAPA 2: VIDEO (Auto) --- */}
-        {stage === 'video' && (
-          <motion.div
-            key="video"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-0 bg-black flex items-center justify-center"
-          >
-            <video
-              ref={videoRef}
-              className="w-full h-full object-cover opacity-100"
-              playsInline
-              muted={false} 
-              onEnded={handleVideoEnd}
-            >
-              {/* Mantenemos la V mayúscula que te funcionó */}
-              <source src="/Video-auto.mp4" type="video/mp4" />
-            </video>
-            
-            <button 
-              onClick={handleVideoEnd}
-              className="absolute bottom-10 right-10 font-bangers text-xl text-yellow-400 bg-black/80 px-4 py-2 border-2 border-yellow-400 hover:bg-yellow-400 hover:text-black transition-colors z-50 uppercase tracking-widest"
-            >
-              Saltar
             </button>
           </motion.div>
         )}
@@ -116,7 +110,7 @@ export default function BirthdayInvitation() {
           initial={{ opacity: 0, y: 100, rotate: 5 }}
           animate={{ opacity: 1, y: 0, rotate: 0 }}
           transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-          className="relative z-30 w-full max-w-sm mx-auto mt-20 px-4" // Agregué px-4 para margen en móviles
+          className="relative z-30 w-full max-w-sm mx-auto mt-20 px-4"
         >
           <motion.div 
             initial={{ y: 50, opacity: 0 }}
